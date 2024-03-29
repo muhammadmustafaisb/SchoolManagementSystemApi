@@ -22,17 +22,6 @@ namespace SMSApi.Infrastructure.Data
             await _studentContext.Students.AddAsync(student);
         }
 
-        public async Task DeleteStudentAsync(Student student) 
-        {
-            if (student == null) 
-            { 
-                throw new ArgumentException(nameof(student));
-            }
-
-            _studentContext.Students.Remove(student);
-            await _studentContext.SaveChangesAsync();
-        }
-
         public async Task<IEnumerable<Student>> GetAllStudentAsync() 
         {
             return await _studentContext.Students.ToListAsync();
@@ -50,6 +39,17 @@ namespace SMSApi.Infrastructure.Data
 
         public void UpdateStudent(Student student) 
         { }
+
+        public async Task DeleteStudentAsync(Student student)
+        {
+            if (student == null)
+            {
+                throw new ArgumentException(nameof(student));
+            }
+
+            _studentContext.Students.Remove(student);
+            await _studentContext.SaveChangesAsync();
+        }
 
     }
 }

@@ -70,5 +70,50 @@ namespace SMSApi.Controllers
             return Ok();
         }
 
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PartialStudentUpdate(int id, JsonPatchDocument<StudentUpdateDto> patchDoc)
+        {
+            var studentModelFromRepo = await _studentRepo.GetAllStudentByIdAsync(id);
+
+            if (studentModelFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            var studentToPatch = _mapper.Map<StudentUpdateDto>(studentModelFromRepo);
+            patchDoc.ApplyTo(studentToPatch, ModelState);
+            patchDoc.ApplyTo(studentToPatch, ModelState);
+
+            if (!TryValidateModel(studentToPatch))
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            _mapper.Map(studentToPatch, studentModelFromRepo);
+
+            _studentRepo.UpdateStudent(studentModelFromRepo);
+
+            await _studentRepo.SaveChangesAsync();
+
+            return Ok();
+
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteStudentById(int id)
+        {
+            var studentModelFromRepo = _studentRepo.GetAllStudentByIdAsync(id);
+
+            if (studentModelFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            await _studentRepo.DeleteStudentAsync(await studentModelFromRepo);
+            await _studentRepo.SaveChangesAsync();
+
+            return Ok();
+        }
+
     }
 }

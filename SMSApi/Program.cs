@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Serialization;
 using SMSApi.Core.Repositories.Data;
 using SMSApi.Infrastructure.Data;
 
@@ -13,9 +14,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(option => {
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<IStudentRepo, StudentRepo>();
+builder.Services.AddScoped<IStudentClassRepo, StudentClassRepo>();
+builder.Services.AddScoped<ITeacherRepo, TeacherRepo>();
 
+builder.Services.AddControllers().AddNewtonsoftJson(s =>
+{ s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver(); });
 
-builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
