@@ -2,5 +2,6 @@
 {
     public class StudentClassCreateDto
     {
+        public string Name { get; set; }
     }
 }
