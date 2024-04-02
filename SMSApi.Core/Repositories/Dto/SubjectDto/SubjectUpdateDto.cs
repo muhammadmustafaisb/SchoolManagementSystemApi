@@ -2,5 +2,6 @@
 {
     public class SubjectUpdateDto
     {
+        public string Name { get; set; }
     }
 }

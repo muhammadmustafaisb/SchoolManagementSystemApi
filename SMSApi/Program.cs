@@ -16,6 +16,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IStudentRepo, StudentRepo>();
 builder.Services.AddScoped<IStudentClassRepo, StudentClassRepo>();
 builder.Services.AddScoped<ITeacherRepo, TeacherRepo>();
+builder.Services.AddScoped<ISubjectRepo, SubjectRepo>();
 
 builder.Services.AddControllers().AddNewtonsoftJson(s =>
 { s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver(); });
