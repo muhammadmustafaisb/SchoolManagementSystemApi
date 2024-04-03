@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using SMSApi.Core.Dto.TeacherDto;
 using SMSApi.Core.Models;
-using SMSApi.Core.Repositories.Data;
-using SMSApi.Core.Repositories.Dto.StudentDto;
-using SMSApi.Core.Repositories.Dto.TeacherDto;
-using SMSApi.Infrastructure.Data;
+using SMSApi.Core.Repositories;
 
 namespace SMSApi.Controllers
 {
@@ -14,19 +11,19 @@ namespace SMSApi.Controllers
     [ApiController]
     public class TeacherController : ControllerBase
     {
-        private readonly ITeacherRepo _teacherRepo;
+        private readonly ITeacherRepository _teacherRepository;
         private readonly IMapper _mapper;
 
-        public TeacherController(ITeacherRepo teacherRepo, IMapper mapper)
+        public TeacherController(ITeacherRepository teacherRepository, IMapper mapper)
         {
-            _teacherRepo = teacherRepo;
+            _teacherRepository = teacherRepository;
             _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TeacherReadDto>>> GetAllTeachers()
         {
-            var teacherItems = _teacherRepo.GetAllTeacherAsync();
+            var teacherItems = _teacherRepository.GetAllTeacherAsync();
 
             return Ok(_mapper.Map<IEnumerable<TeacherReadDto>>(await teacherItems));
         }
@@ -34,7 +31,7 @@ namespace SMSApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TeacherReadDto>> GetTeacherById(int id) 
         { 
-            var teacherItem = _teacherRepo.GetTeacherByIdAsync(id);
+            var teacherItem = _teacherRepository.GetTeacherByIdAsync(id);
             if (teacherItem == null) 
             { 
                 return NotFound();
@@ -47,8 +44,8 @@ namespace SMSApi.Controllers
         public async Task<ActionResult<TeacherReadDto>> CreateTeacher(TeacherCreateDto teacherCreateDto) 
         {
             var teacherModel = _mapper.Map<Teacher>(teacherCreateDto);
-            await _teacherRepo.CreateTeacherAsync(teacherModel);
-            await _teacherRepo.SaveChangesAsync();
+            await _teacherRepository.CreateTeacherAsync(teacherModel);
+            await _teacherRepository.SaveChangesAsync();
 
             var teacherReadDto = _mapper.Map<TeacherReadDto>(teacherModel);
 
@@ -58,7 +55,7 @@ namespace SMSApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateTeacher(int id, TeacherUpdateDto teacherUpdateDto)
         {
-            var teacherModelFromRepo = await _teacherRepo.GetTeacherByIdAsync(id);
+            var teacherModelFromRepo = await _teacherRepository.GetTeacherByIdAsync(id);
             if (teacherModelFromRepo == null)
             {
                 return NotFound();
@@ -66,9 +63,9 @@ namespace SMSApi.Controllers
 
             _mapper.Map(teacherUpdateDto, teacherModelFromRepo);
 
-            _teacherRepo.UpdateTeacher(teacherModelFromRepo);
+            _teacherRepository.UpdateTeacher(teacherModelFromRepo);
 
-            await _teacherRepo.SaveChangesAsync();
+            await _teacherRepository.SaveChangesAsync();
 
             return Ok();
         }
@@ -76,7 +73,7 @@ namespace SMSApi.Controllers
         [HttpPatch("{id}")]
         public async Task<ActionResult> PartialTeacherUpdate(int id, JsonPatchDocument<TeacherUpdateDto> patchDoc)
         {
-            var teacherModelFromRepo = await _teacherRepo.GetTeacherByIdAsync(id);
+            var teacherModelFromRepo = await _teacherRepository.GetTeacherByIdAsync(id);
 
             if (teacherModelFromRepo == null)
             {
@@ -93,9 +90,9 @@ namespace SMSApi.Controllers
 
             _mapper.Map(teacherToPatch, teacherModelFromRepo);
 
-            _teacherRepo.UpdateTeacher(teacherModelFromRepo);
+            _teacherRepository.UpdateTeacher(teacherModelFromRepo);
 
-            await _teacherRepo.SaveChangesAsync();
+            await _teacherRepository.SaveChangesAsync();
 
             return Ok();
 
@@ -104,15 +101,15 @@ namespace SMSApi.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteTeacherById(int id)
         {
-            var teacherModelFromRepo = _teacherRepo.GetTeacherByIdAsync(id);
+            var teacherModelFromRepo = _teacherRepository.GetTeacherByIdAsync(id);
 
             if (teacherModelFromRepo == null)
             {
                 return NotFound();
             }
 
-            await _teacherRepo.DeleteTeacherAsync(await teacherModelFromRepo);
-            await _teacherRepo.SaveChangesAsync();
+            await _teacherRepository.DeleteTeacherAsync(await teacherModelFromRepo);
+            await _teacherRepository.SaveChangesAsync();
 
             return Ok();
         }

@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using SMSApi.Core.Dto.StudentDto;
 using SMSApi.Core.Models;
-using SMSApi.Core.Repositories.Data;
-using SMSApi.Core.Repositories.Dto.StudentDto;
+using SMSApi.Core.Repositories;
 
 namespace SMSApi.Controllers
 {
@@ -11,19 +11,19 @@ namespace SMSApi.Controllers
     [ApiController]
     public class StudentController : ControllerBase
     {
-        private readonly IStudentRepo _studentRepo;
+        private readonly IStudentRepository _studentRepository;
         private readonly IMapper _mapper;
 
-        public StudentController(IStudentRepo studentRepo, IMapper mapper)
+        public StudentController(IStudentRepository studentRepository, IMapper mapper)
         {
-            _studentRepo = studentRepo;
+            _studentRepository = studentRepository;
             _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<StudentReadDto>>> GetAllStudents() 
         {
-            var studentItems = _studentRepo.GetAllStudentAsync();
+            var studentItems = _studentRepository.GetAllStudentAsync();
 
             return Ok(_mapper.Map<IEnumerable<StudentReadDto>>(await studentItems));
         }
@@ -31,7 +31,7 @@ namespace SMSApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<StudentReadDto>> GetStudentById(int id) 
         {
-            var student = _studentRepo.GetAllStudentByIdAsync(id);
+            var student = _studentRepository.GetAllStudentByIdAsync(id);
 
             if (student == null) 
             {
@@ -45,8 +45,8 @@ namespace SMSApi.Controllers
         public async Task<ActionResult<StudentReadDto>> CreateStudent(StudentCreateDto studentCreateDto) 
         {
             var studentModel = _mapper.Map<Student>(studentCreateDto);
-            await _studentRepo.CreateStudentAsync(studentModel);
-            await _studentRepo.SaveChangesAsync();
+            await _studentRepository.CreateStudentAsync(studentModel);
+            await _studentRepository.SaveChangesAsync();
 
             var studentReadDto = _mapper.Map<StudentReadDto>(studentModel);
 
@@ -56,16 +56,16 @@ namespace SMSApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateStudent(int id, StudentUpdateDto studentUpdateDto) 
         {
-            var studentModel = await _studentRepo.GetAllStudentByIdAsync(id);
+            var studentModel = await _studentRepository.GetAllStudentByIdAsync(id);
             if (studentModel == null) 
             {
                 return NotFound();
             }
 
             _mapper.Map(studentUpdateDto, studentModel);
-            _studentRepo.UpdateStudent(studentModel);
+            _studentRepository.UpdateStudent(studentModel);
 
-            await _studentRepo.SaveChangesAsync();
+            await _studentRepository.SaveChangesAsync();
 
             return Ok();
         }
@@ -73,7 +73,7 @@ namespace SMSApi.Controllers
         [HttpPatch("{id}")]
         public async Task<ActionResult> PartialStudentUpdate(int id, JsonPatchDocument<StudentUpdateDto> patchDoc)
         {
-            var studentModelFromRepo = await _studentRepo.GetAllStudentByIdAsync(id);
+            var studentModelFromRepo = await _studentRepository.GetAllStudentByIdAsync(id);
 
             if (studentModelFromRepo == null)
             {
@@ -91,9 +91,9 @@ namespace SMSApi.Controllers
 
             _mapper.Map(studentToPatch, studentModelFromRepo);
 
-            _studentRepo.UpdateStudent(studentModelFromRepo);
+            _studentRepository.UpdateStudent(studentModelFromRepo);
 
-            await _studentRepo.SaveChangesAsync();
+            await _studentRepository.SaveChangesAsync();
 
             return Ok();
 
@@ -102,15 +102,15 @@ namespace SMSApi.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteStudentById(int id)
         {
-            var studentModelFromRepo = _studentRepo.GetAllStudentByIdAsync(id);
+            var studentModelFromRepo = _studentRepository.GetAllStudentByIdAsync(id);
 
             if (studentModelFromRepo == null)
             {
                 return NotFound();
             }
 
-            await _studentRepo.DeleteStudentAsync(await studentModelFromRepo);
-            await _studentRepo.SaveChangesAsync();
+            await _studentRepository.DeleteStudentAsync(await studentModelFromRepo);
+            await _studentRepository.SaveChangesAsync();
 
             return Ok();
         }

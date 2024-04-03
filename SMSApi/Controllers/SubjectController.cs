@@ -1,29 +1,29 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using SMSApi.Core.Dto.SubjectDto;
 using SMSApi.Core.Models;
-using SMSApi.Core.Repositories.Data;
-using SMSApi.Core.Repositories.Dto.StudentDto;
-using SMSApi.Core.Repositories.Dto.SubjectDto;
-using SMSApi.Infrastructure.Data;
+using SMSApi.Core.Repositories;
 
 namespace SMSApi.Controllers
 {
+    [Route("api/Subject")]
+    [ApiController]
     public class SubjectController : Controller
     {
-        private readonly ISubjectRepo _subjectRepo;
+        private readonly ISubjectRepository _subjectRepository;
         private readonly IMapper _mapper;
 
-        public SubjectController(ISubjectRepo subjectRepo, IMapper mapper)
+        public SubjectController(ISubjectRepository subjectRepository, IMapper mapper)
         {
-            _subjectRepo = subjectRepo;
+            _subjectRepository = subjectRepository;
             _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SubjectReadDto>>> GetAllSubjects()
         {
-            var subjectItems = _subjectRepo.GetAllSubjectAsync();
+            var subjectItems = _subjectRepository.GetAllSubjectAsync();
 
             return Ok(_mapper.Map<IEnumerable<SubjectReadDto>>(await subjectItems));
         }
@@ -31,7 +31,7 @@ namespace SMSApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<SubjectReadDto>> GetSubjectById(int id)
         {
-            var subjectItem = _subjectRepo.GetSubjectByIdAsync(id);
+            var subjectItem = _subjectRepository.GetSubjectByIdAsync(id);
             if (subjectItem == null)
             {
                 return NotFound();
@@ -43,8 +43,8 @@ namespace SMSApi.Controllers
         public async Task<ActionResult<SubjectReadDto>> CreateSubject(SubjectCreateDto subjectCreateDto)
         {
             var subjectModel = _mapper.Map<Subject>(subjectCreateDto);
-            await _subjectRepo.CreateSubjectAsync(subjectModel);
-            await _subjectRepo.SaveChangesAsync();
+            await _subjectRepository.CreateSubjectAsync(subjectModel);
+            await _subjectRepository.SaveChangesAsync();
 
             var subjectReadDto = _mapper.Map<SubjectReadDto>(subjectModel);
 
@@ -54,7 +54,7 @@ namespace SMSApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateSubject(int id, SubjectUpdateDto subjectUpdateDto)
         {
-            var subjectModelFromRepo = await _subjectRepo.GetSubjectByIdAsync(id);
+            var subjectModelFromRepo = await _subjectRepository.GetSubjectByIdAsync(id);
             if (subjectModelFromRepo == null)
             {
                 return NotFound();
@@ -62,9 +62,9 @@ namespace SMSApi.Controllers
 
             _mapper.Map(subjectUpdateDto, subjectModelFromRepo);
 
-            _subjectRepo.UpdateSubject(subjectModelFromRepo);
+            _subjectRepository.UpdateSubject(subjectModelFromRepo);
 
-            await _subjectRepo.SaveChangesAsync();
+            await _subjectRepository.SaveChangesAsync();
 
             return Ok();
         }
@@ -72,7 +72,7 @@ namespace SMSApi.Controllers
         [HttpPatch("{id}")]
         public async Task<ActionResult> PartialSubjectUpdate(int id, JsonPatchDocument<SubjectUpdateDto> patchDoc)
         {
-            var subjectModelFromRepo = await _subjectRepo.GetSubjectByIdAsync(id);
+            var subjectModelFromRepo = await _subjectRepository.GetSubjectByIdAsync(id);
 
             if (subjectModelFromRepo == null)
             {
@@ -89,24 +89,24 @@ namespace SMSApi.Controllers
 
             _mapper.Map(subjectToPatch, subjectModelFromRepo);
 
-            _subjectRepo.UpdateSubject(subjectModelFromRepo);
+            _subjectRepository.UpdateSubject(subjectModelFromRepo);
 
-            await _subjectRepo.SaveChangesAsync();
+            await _subjectRepository.SaveChangesAsync();
             return Ok();
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteSubjectById(int id)
         {
-            var subjectModelFromRepo = _subjectRepo.GetSubjectByIdAsync(id);
+            var subjectModelFromRepo = _subjectRepository.GetSubjectByIdAsync(id);
 
             if (subjectModelFromRepo == null)
             {
                 return NotFound();
             }
 
-            await _subjectRepo.DeleteSubjectAsync(await subjectModelFromRepo);
-            await _subjectRepo.SaveChangesAsync();
+            await _subjectRepository.DeleteSubjectAsync(await subjectModelFromRepo);
+            await _subjectRepository.SaveChangesAsync();
 
             return Ok();
         }

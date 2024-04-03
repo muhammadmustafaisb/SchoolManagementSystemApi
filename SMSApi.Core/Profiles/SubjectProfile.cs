@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using SMSApi.Core.Dto.SubjectDto;
 using SMSApi.Core.Models;
-using SMSApi.Core.Repositories.Dto.SubjectDto;
 
 namespace SMSApi.Core.Profiles
 {
