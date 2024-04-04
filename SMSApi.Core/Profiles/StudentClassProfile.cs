@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using SMSApi.Core.Dto.StudentClassDto;
 using SMSApi.Core.Models;
-using SMSApi.Core.Repositories.Dto.StudentClassDto;
 
 namespace SMSApi.Core.Profiles
 {
